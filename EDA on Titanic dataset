@@ -1,0 +1,54 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Load the Titanic dataset
+data = pd.read_csv('https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv')
+
+# Perform EDA
+print(data.head())
+print(data.info())
+print(data.describe())
+
+# Plot the distribution of age
+sns.distplot(data['Age'].dropna(), hist=True, kde=False, bins=16)
+plt.show()
+
+# Plot the count of survivors based on Pclass
+sns.countplot(x='Survived', hue='Pclass', data=data)
+plt.show()
+
+# Plot the count of survivors based on Sex
+sns.countplot(x='Survived', hue='Sex', data=data)
+plt.show()
+
+# Plot the count of survivors based on Embarked
+sns.countplot(x='Survived', hue='Embarked', data=data)
+plt.show()
+
+# Prepare the data for the classifier and regressor
+X = data.drop(['Survived'], axis=1)
+X = pd.get_dummies(X, columns=['Pclass', 'Sex', 'Embarked'])
+X = X.fillna(X.mean())
+y = data['Survived']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+# Train the classifier and calculate its accuracy
+classifier = RandomForestClassifier(n_estimators=100, random_state=0)
+classifier.fit(X_train, y_train)
+y_pred = classifier.predict(X_test)
+classifier_accuracy = accuracy_score(y_test, y_pred)
+print("Classifier Accuracy: ", classifier_accuracy)
+
+# Train the regressor and calculate its accuracy
+regressor = RandomForestRegressor(n_estimators=100, random_state=0)
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+regressor_accuracy = accuracy_score(y_test, y_pred)
+print("Regressor Accuracy: ", regressor_accuracy)
